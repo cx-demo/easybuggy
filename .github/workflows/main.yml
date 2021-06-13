@@ -1,0 +1,58 @@
+# This workflow is to automate Checkmarx SAST scans.  It runs on a push to the main branch.
+#
+# The following GitHub Secrets must be first defined:
+#   - CHECKMARX_URL
+#   - CHECKMARX_USER
+#   - CHECKMARX_PASSWORD
+#   - CHECKMARX_CLIENT_SECRET
+#   - CHECKMARX_TEAM
+#
+# The following variables must be inserted below:
+#   - <ProjectName>
+#
+# Update the 'team' field to reflect the team name used in Checkmarx.
+#
+# For full documentation, including a list of all inputs, please refer to the README https://github.com/checkmarx-ts/checkmarx-cxflow-github-action
+
+name: Checkmarx SAST Scan on push request
+on:
+  push:
+    branches:
+      - master
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    # Extract the short branch name
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+
+    # Extracts the Org name from GitHub's environment variables and stores in another env variable.
+    - name: Get the Organization Name
+      run: echo ::set-env name=ORG_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $1}')
+    
+    - name: Checkmarx CxFlow Action
+      uses: checkmarx-ts/checkmarx-cxflow-github-action@v1.1 #Github Action version
+      with:
+        project: ${{ env.REPO_NAME }}-${{ steps.extract_branch.outputs.branch }}
+        team: '${{ secrets.CHECKMARX_TEAM }}/${{ env.ORG_NAME }}' # To be stored in Github Secrets
+        checkmarx_url: ${{ secrets.CHECKMARX_URL }} # To be stored in GitHub Secrets.
+        checkmarx_username: ${{ secrets.CHECKMARX_USER }} # To be stored in GitHub Secrets.
+        checkmarx_password: ${{ secrets.CHECKMARX_PASSWORD }} # To be stored in GitHub Secrets.
+        checkmarx_client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }} # To be stored in GitHub Secrets.
+        break_build: false
+        scanners: sast
+        bug_tracker: Sarif
+        params: --namespace=${{ github.repository_owner }} --repo-name=${{ github.event.repository.name }} --branch=${{ github.ref }}
+    
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: cx.sarif
