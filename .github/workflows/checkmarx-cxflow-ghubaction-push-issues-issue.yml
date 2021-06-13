@@ -14,7 +14,7 @@
 #
 # For full documentation, including a list of all inputs, please refer to the README https://github.com/checkmarx-ts/checkmarx-cxflow-github-action
 
-name: Checkmarx SAST Scan on push request to issues
+name: CxFlow-GitHub-Issue-Push
 on:
   push:
     branches:
