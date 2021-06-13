@@ -23,32 +23,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env : #Set the environment variables for RepoName and PR number.
-      REPO_NAME: ${{ github.event.repository.name }}
-      BR_NAME: ${{ github.head_ref }} 
-      PR_NUMBER: ${{ github.event.number }}
-    
+   
     steps:
     
     - name: Checkout
       uses: actions/checkout@v2
-    
-    # Extract the short branch name
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
-
-     # Extracts the Org name from GitHub's environment variables and stores in another env variable.
-    - name: Get the Organization Name
-      #run: echo ::set-env name=ORG_NAME::$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $1}')
-      run: |
-        echo "ORG_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $1}')" >> $GITHUB_ENV
-    
+      
     - name: Checkmarx CxFlow Action
       uses: checkmarx-ts/checkmarx-cxflow-github-action@v1.1 #Github Action version
       with:
-        project: ${{ env.REPO_NAME }}
+        project: ${{ github.event.repository.name }}
         team: '${{ secrets.CHECKMARX_TEAM }}' # To be stored in Github Secrets
         checkmarx_url: ${{ secrets.CHECKMARX_URL }} # To be stored in GitHub Secrets.
         checkmarx_username: ${{ secrets.CHECKMARX_USER }} # To be stored in GitHub Secrets.
