@@ -43,8 +43,8 @@ jobs:
     - name: Checkmarx CxFlow Action
       uses: checkmarx-ts/checkmarx-cxflow-github-action@v1.1 #Github Action version
       with:
-        project: ${{ env.REPO_NAME }}-${{ steps.extract_branch.outputs.branch }}
-        team: '${{ secrets.CHECKMARX_TEAM }}/${{ env.ORG_NAME }}' # To be stored in Github Secrets
+        project: ${{ env.REPO_NAME }}
+        team: '${{ secrets.CHECKMARX_TEAM }}' # To be stored in Github Secrets
         checkmarx_url: ${{ secrets.CHECKMARX_URL }} # To be stored in GitHub Secrets.
         checkmarx_username: ${{ secrets.CHECKMARX_USER }} # To be stored in GitHub Secrets.
         checkmarx_password: ${{ secrets.CHECKMARX_PASSWORD }} # To be stored in GitHub Secrets.
